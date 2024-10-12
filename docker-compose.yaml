@@ -1,0 +1,32 @@
+version: '3.8'
+services:
+
+  www:
+    image: php:apache
+    volumes:
+      - "./:/var/www/html" # sync project directory w/ container web directory
+    ports:
+      - 80:80
+      - 443:443 # future ssl traffic
+    depends_on:
+      - db
+
+  db:
+    image: mysql:latest
+    environment:
+      - MYSQL_DATABASE=php_docker
+      - MYSQL_USER=${DB_USERNAME}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_ALLOW_EMPTY_PASSWORD=1
+    volumes:
+      - "./db:/docker-entrypoint-initdb.d" # sync db directory w/ container
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - 8001:80
+    environment:
+      - PMA_HOST=db
+      - PMA_PORT=3306
+    depends_on:
+      - db
